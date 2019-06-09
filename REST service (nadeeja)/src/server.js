@@ -38,13 +38,15 @@ app.get('/', (req, res) => {
         a_van: req.query.van,
         a_redv: req.query.redv,
         fros_price: req.query.price,
-        fros_pic: req.query.url
+        fros_pic: req.query.url,
+        fros_des: req.query.des
     }
 
     mongoDB.connect(dbUrl,{ useNewUrlParser: true }, (err, client) => {
         client.db("cakeDB").collection("cr_frosting").insertOne(item, () => {
             res.send(req.query);
         });
+        console.log(item);
     })
 });
 
@@ -57,7 +59,8 @@ app.post('/insertTop', (req, res) =>{
         a_van: req.query.van,
         a_redv: req.query.redv,
         top_price: req.query.price,
-        top_pic: req.query.url
+        top_pic: req.query.url,
+        top_des: req.query.des
     }
 
     mongoDB.connect(dbUrl,{ useNewUrlParser: true }, (err, client) => {
@@ -67,9 +70,70 @@ app.post('/insertTop', (req, res) =>{
     })
 });
 
+
+app.post('/insertCalssicCake', (req, res) =>{
+
+    var item = {
+        size: req.query.size,
+        shape: req.query.shape,
+        flavour: req.query.flavour,
+        frosting: req.query.frosting,
+        topping: req.query.topping,
+        pic: req.query.pic,
+        price: req.query.price
+    }
+
+    mongoDB.connect(dbUrl,{ useNewUrlParser: true }, (err, client) => {
+        client.db("cakeDB").collection("classic_cakes").insertOne(item, () => {
+            res.send(req.query);
+        });
+    })
+});
+
 app.delete('/deleteTop', (req,res) => {
     mongoDB.connect(dbUrl,{ useNewUrlParser: true }, (err, client) => {
         client.db("cakeDB").collection("cr_topping").remove({"top_no": null}) 
+    })
+});
+
+app.get('/getFrosting', (req, res) => {
+    mongoDB.connect(dbUrl,{ useNewUrlParser: true }, (err, client) => {
+        arr = [];
+        client.db("cakeDB").collection("cr_frosting").find().forEach( (data) => {
+            arr.push(data.fros_name);
+        }, () => {
+            res.send(arr);
+        });
+    })
+}); 
+
+app.get('/getTopping', (req, res) => {
+    mongoDB.connect(dbUrl,{ useNewUrlParser: true }, (err, client) => {
+        arr = [];
+        client.db("cakeDB").collection("cr_topping").find().forEach( (data) => {
+            arr.push(data.top_name);
+        }, () => {
+            res.send(arr);
+        });
+    })
+}); 
+
+app.get('/getClassicCake', (req, res) => {
+
+    var item = {
+        size: req.query.size,
+        shape: req.query.shape,
+        flavour: req.query.flavour,
+        frosting: req.query.frosting,
+        topping: req.query.topping
+    }
+    mongoDB.connect(dbUrl,{ useNewUrlParser: true }, (err, client) => {
+        arr = [];
+        client.db("cakeDB").collection("classic_cakes").find({"size":item.size, "shape":item.shape, "flavour":item.flavour, "frosting":item.frosting, "topping":item.topping}).forEach( (data) => {
+            arr.push(data);
+        }, () => {
+            res.send(arr);
+        });
     })
 });
 
